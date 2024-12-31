@@ -1,6 +1,3 @@
-
-
-
 import os
 import cv2
 import tempfile
@@ -11,20 +8,20 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 
 # Set page configuration
-st.set_page_config(page_title="Pothole Detection", layout="wide", page_icon="🧍‍⚕️")
+st.set_page_config(page_title="Pothole Detection", layout="wide", page_icon="🛠️")
 
 # Sidebar for navigation
 with st.sidebar:
     selected = option_menu(
         'Pothole Detection System',
         ['Image Upload', 'Video Upload'],
-        menu_icon='hospital-fill',
+        menu_icon='tools',
         icons=['image', 'film'],
         default_index=0
     )
 
 # Define YOLO model path
-MODEL_PATH = r"pothole_segmentation.pt"
+MODEL_PATH = "pothole_segmentation.pt"
 
 # Check if the model exists
 if not Path(MODEL_PATH).exists():
@@ -32,15 +29,15 @@ if not Path(MODEL_PATH).exists():
 
 # Image Upload Page
 if selected == 'Image Upload':
-    st.title('Pothole Prediction Using Deep Learning')
+    st.title('Pothole Detection Using Deep Learning')
 
     def detect_objects(image_path, model_path):
         """
-        Detect objects in the input image using a YOLOv8 model.
+        Detect objects in the input image using a YOLO model.
 
         Args:
             image_path (str): Path to the input image.
-            model_path (str): Path to the pre-trained YOLOv8 model.
+            model_path (str): Path to the pre-trained YOLO model.
 
         Returns:
             Annotated image with detected objects.
@@ -82,15 +79,15 @@ if selected == 'Image Upload':
 
 # Video Upload Page
 if selected == 'Video Upload':
-    st.title('Pothole Prediction for Video')
+    st.title('Pothole Detection for Video')
 
     def detect_potholes_yolov8(frame, model):
         """
-        Detect potholes in the input frame using YOLOv8.
+        Detect potholes in the input frame using YOLO.
 
         Args:
             frame (ndarray): Input video frame.
-            model: Loaded YOLOv8 model.
+            model: Loaded YOLO model.
 
         Returns:
             Processed frame with bounding boxes and labels.
@@ -115,7 +112,7 @@ if selected == 'Video Upload':
 
         return frame
 
-    # Load the YOLOv8 model
+    # Load the YOLO model
     model = YOLO(MODEL_PATH)
 
     # Video file uploader
