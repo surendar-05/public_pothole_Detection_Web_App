@@ -1,31 +1,37 @@
 
 
 
-import matplotlib.pyplot as plt
+import os
 import cv2
-import streamlit as st
+import tempfile
+import matplotlib.pyplot as plt
 from pathlib import Path
 from ultralytics import YOLO
+import streamlit as st
 from streamlit_option_menu import option_menu
-import os
 
 # Set page configuration
-st.set_page_config(page_title="Pothole Detection", layout="wide", page_icon="🧑‍⚕️")
-
-# Getting the working directory of the main.py
-working_dir = os.path.dirname(os.path.abspath(__file__))
+st.set_page_config(page_title="Pothole Detection", layout="wide", page_icon="🧍‍⚕️")
 
 # Sidebar for navigation
 with st.sidebar:
-    selected = option_menu('Pothole Detection System',
-                           ['Image Upload', 'Video Upload'],
-                           menu_icon='hospital-fill',
-                           icons=['image', 'film'],
-                           default_index=0)
+    selected = option_menu(
+        'Pothole Detection System',
+        ['Image Upload', 'Video Upload'],
+        menu_icon='hospital-fill',
+        icons=['image', 'film'],
+        default_index=0
+    )
+
+# Define YOLO model path
+MODEL_PATH = r"pothole_segmentation.pt"
+
+# Check if the model exists
+if not Path(MODEL_PATH).exists():
+    st.error(f"Model file '{MODEL_PATH}' not found. Please upload it to the project directory.")
 
 # Image Upload Page
 if selected == 'Image Upload':
-    # Page title
     st.title('Pothole Prediction Using Deep Learning')
 
     def detect_objects(image_path, model_path):
@@ -55,12 +61,12 @@ if selected == 'Image Upload':
 
     if uploaded_image is not None:
         # Save the uploaded image temporarily
-        image_path = Path(working_dir) / "temp_image.jpg"
-        with open(image_path, "wb") as f:
-            f.write(uploaded_image.getbuffer())
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_image_file:
+            temp_image_file.write(uploaded_image.getbuffer())
+            image_path = temp_image_file.name
 
         # Perform object detection
-        output_image = detect_objects(str(image_path), r"pothole_segmentation.pt")
+        output_image = detect_objects(image_path, MODEL_PATH)
 
         # Convert BGR to RGB for displaying with matplotlib
         output_image = cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB)
@@ -74,8 +80,7 @@ if selected == 'Image Upload':
         with col2:
             st.image(output_image, caption="Detected Pothole", use_container_width=True)
 
-
-  # Video Upload Page
+# Video Upload Page
 if selected == 'Video Upload':
     st.title('Pothole Prediction for Video')
 
@@ -111,19 +116,19 @@ if selected == 'Video Upload':
         return frame
 
     # Load the YOLOv8 model
-    model = YOLO(r"pothole_segmentation.pt")
+    model = YOLO(MODEL_PATH)
 
     # Video file uploader
     video_file = st.file_uploader("Upload a video", type=["mp4", "avi", "mov"])
 
     if video_file is not None:
         # Save the uploaded video temporarily
-        video_path = Path(working_dir) / "temp_video.mp4"
-        with open(video_path, "wb") as f:
-            f.write(video_file.getbuffer())
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
+            temp_video_file.write(video_file.getbuffer())
+            video_path = temp_video_file.name
 
         # Open the video file
-        cap = cv2.VideoCapture(str(video_path))
+        cap = cv2.VideoCapture(video_path)
 
         # Create columns to display both videos side by side
         col1, col2 = st.columns(2)
@@ -153,3 +158,4 @@ if selected == 'Video Upload':
             output_video_frame.image(processed_frame, channels="RGB", use_container_width=True)
 
         cap.release()
+        cv2.destroyAllWindows()
