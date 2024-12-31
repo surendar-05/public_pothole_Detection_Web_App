@@ -60,7 +60,7 @@ if selected == 'Image Upload':
             f.write(uploaded_image.getbuffer())
 
         # Perform object detection
-        output_image = detect_objects(str(image_path), r"C:\Users\Surendar\Downloads\pothole_segmentation.pt")
+        output_image = detect_objects(str(image_path), r"pothole_segmentation.pt")
 
         # Convert BGR to RGB for displaying with matplotlib
         output_image = cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB)
@@ -111,7 +111,7 @@ if selected == 'Video Upload':
         return frame
 
     # Load the YOLOv8 model
-    model = YOLO(r"C:\Users\Surendar\Downloads\pothole_segmentation.pt")
+    model = YOLO(r"pothole_segmentation.pt")
 
     # Video file uploader
     video_file = st.file_uploader("Upload a video", type=["mp4", "avi", "mov"])
